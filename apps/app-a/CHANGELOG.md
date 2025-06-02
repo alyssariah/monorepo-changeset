@@ -1,3 +1,9 @@
+# [1.3.0](https://github.com/alyssariah/monorepo-changeset/compare/app-a@v1.2.0...app-a@1.3.0) (2025-06-02)
+
+### chore
+
+- clean app A ([66a49b3](https://github.com/alyssariah/monorepo-changeset/commit/66a49b3bd8c155ecc358f240ed3d09e8d726c8cc))
+
 # [1.2.0](https://github.com/alyssariah/monorepo-changeset/compare/app-a@v1.1.0...app-a@1.2.0) (2025-06-02)
 
 ### build
