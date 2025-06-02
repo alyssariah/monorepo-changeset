@@ -14,5 +14,8 @@
   "license": "ISC",
   "devDependencies": {
     "conventional-changelog-eslint": "^6.0.0"
+  },
+  "dependencies": {
+    "conventional-changelog": "^7.0.2"
   }
 }
