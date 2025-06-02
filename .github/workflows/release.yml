@@ -119,10 +119,10 @@ jobs:
           echo "Last tag: $LAST_TAG"
 
           # Generate changelog using generate-changelog
-          npx conventional-changelog -p angular -i "$CHANGELOG_PATH" --from "$LAST_TAG"
+          npx conventional-changelog -p angular -i "$CHANGELOG_PATH" --commit-path "apps/${APP_NAME}"
 
           # Format the changelog using Prettier
-          # npx prettier --write "$CHANGELOG_PATH"
+          npx prettier --write "$CHANGELOG_PATH"
 
           # Configure Git user identity
           git config --global user.name "github-actions[bot]"
