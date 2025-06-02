@@ -23,9 +23,11 @@ on:
           - app-b
 
 jobs:
-  create_release_pr:
+  get_commits_by_app:
     runs-on: ubuntu-latest
-    name: Create Release PR
+    name: Get Commits by App
+    outputs:
+      filtered_commits: ${{ steps.filter-commits.outputs.filtered_commits }}
 
     steps:
       - uses: actions/checkout@v4
@@ -53,27 +55,35 @@ jobs:
         run: |
           LAST_TAG=${{ steps.extract-last-tag.outputs.last_tag }}
           APP_NAME=${{ inputs.app-name }}
-          
 
           # Extract commits between the last tag and HEAD
           COMMITS=$(git log $LAST_TAG..HEAD --pretty=format:"%s")
           echo "Commits since last tag $LAST_TAG: $COMMITS"
 
           # Filter commits where the scope matches the app name
-          FILTERED_COMMITS=$(echo "$COMMITS" | grep -E "^.+\\(${APP_NAME}\\):")
+          FILTERED_COMMITS=$(echo "$COMMITS" | grep -E "^.+\\(${APP_NAME}\\):" || true)
 
           # Output filtered commits
           echo "Filtered commits for $APP_NAME: $FILTERED_COMMITS"
           echo "filtered_commits=$FILTERED_COMMITS" >> $GITHUB_OUTPUT
+  
+  create_release_pr:
+    runs-on: ubuntu-latest
+    name: Create Release PR
+    needs: get_commits_by_app
+    if: needs.get_commits_by_app.outputs.filtered_commits != ''
 
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Generate Changelog
-        if: steps.extract-last-tag.outputs.last_tag != ''
         run: |
           APP_NAME=${{ inputs.app-name }}
           CHANGELOG_PATH="${APP_NAME}/CHANGELOG.md"
 
           # Write filtered commits to the changelog file
-          echo "${{ steps.filter-commits.outputs.filtered_commits }}" > $CHANGELOG_PATH
+          echo "${{ needs.get_commits_by_app.outputs.filtered_commits }}" > $CHANGELOG_PATH
 
           # Format the changelog using Prettier
           npx prettier --write $CHANGELOG_PATH
@@ -84,7 +94,6 @@ jobs:
 
       - name: Bump the Version
         id: bump-version
-        if: steps.extract-last-tag.outputs.last_tag != ''
         run: |
           APP_NAME=${{ inputs.app-name }}
           # Bump the version for the specific app-name workspace
@@ -92,12 +101,10 @@ jobs:
           echo "new_version_number=${new_version_number}" >> $GITHUB_OUTPUT
 
       - name: Push Changes
-        if: steps.extract-last-tag.outputs.last_tag != ''
         run: |
           git push origin release/${{ inputs.app-name }}/${{ steps.bump-version.outputs.new_version_number }} --no-verify
 
       - name: Create Pull Request
-        if: steps.extract-last-tag.outputs.last_tag != ''
         run: |
           PR_DATA=$(jq -n \
             --arg title "chore: ${{ steps.bump-version.outputs.new_version_number }} release for ${{ inputs.app-name }}" \
