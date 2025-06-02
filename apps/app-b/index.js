@@ -1,3 +1,3 @@
-// packages/package-b/index.js
-const appA = require('app-a');
-appA();
+module.exports = () => {
+    console.log("Hello from App B!");
+};

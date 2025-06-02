@@ -32,10 +32,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Extract Last Git Tag
+      - name: Extract Last Git Tag Prefixed with App Name
         id: extract-last-tag
         run: |
-          LAST_TAG=$(git describe --tags --abbrev=0)
+          APP_NAME=${{ inputs.app-name }}
+          # Get the last tag prefixed with the app name
+          LAST_TAG=$(git tag --list "${APP_NAME}*" | sort -V | tail -n 1)
+          echo "Last tag for $APP_NAME: $LAST_TAG"
           echo "last_tag=$LAST_TAG" >> $GITHUB_OUTPUT
 
       - name: Filter Commits by Scope
@@ -51,30 +54,41 @@ jobs:
           FILTERED_COMMITS=$(echo "$COMMITS" | grep -E "^.+\\(${APP_NAME}\\):")
 
           # Output filtered commits
+          echo "Filtered commits for $APP_NAME: $FILTERED_COMMITS"
           echo "filtered_commits=$FILTERED_COMMITS" >> $GITHUB_OUTPUT
 
       - name: Generate Changelog
         run: |
-          echo "${{ steps.filter-commits.outputs.filtered_commits }}" > application/CHANGELOG.md
-          npx prettier --write application/CHANGELOG.md
-          git add application/CHANGELOG.md
-          git commit -m 'chore: update changelog'
+          APP_NAME=${{ inputs.app-name }}
+          CHANGELOG_PATH="${APP_NAME}/CHANGELOG.md"
+
+          # Write filtered commits to the changelog file
+          echo "${{ steps.filter-commits.outputs.filtered_commits }}" > $CHANGELOG_PATH
+
+          # Format the changelog using Prettier
+          npx prettier --write $CHANGELOG_PATH
+
+          # Commit the updated changelog
+          git add $CHANGELOG_PATH
+          git commit -m "chore(${APP_NAME}): update changelog"
 
       - name: Bump the Version
         id: bump-version
         run: |
-          new_version_number=$(npm version ${{ inputs.version }} -w application | grep -oP 'v\d+\.\d+\.\d+')
+          APP_NAME=${{ inputs.app-name }}
+          # Bump the version for the specific app-name workspace
+          new_version_number=$(npm version ${{ inputs.version }} -w $APP_NAME | grep -oP 'v\d+\.\d+\.\d+')
           echo "new_version_number=${new_version_number}" >> $GITHUB_OUTPUT
 
       - name: Push Changes
         run: |
-          git push origin release/${{ steps.bump-version.outputs.new_version_number }} --no-verify
+          git push origin release/${{ inputs.app-name }}/${{ steps.bump-version.outputs.new_version_number }} --no-verify
 
       - name: Create Pull Request
         run: |
           PR_DATA=$(jq -n \
-            --arg title "chore: ${{ steps.bump-version.outputs.new_version_number }} release" \
-            --arg head "release/${{ steps.bump-version.outputs.new_version_number }}" \
+            --arg title "chore: ${{ steps.bump-version.outputs.new_version_number }} release for ${{ inputs.app-name }}" \
+            --arg head "release/${{ inputs.app-name }}/${{ steps.bump-version.outputs.new_version_number }}" \
             --arg base "main" \
             --arg body "Automated changes by a GitHub Action" \
             '{title: $title, head: $head, base: $base, body: $body}')
