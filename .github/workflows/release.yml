@@ -81,11 +81,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      
-      - name: Create a new branch
-        run: git checkout -b test-release
-
+          
       - name: Generate Changelog
         run: |
           APP_NAME=${{ inputs.app-name }}
@@ -119,6 +115,7 @@ jobs:
 
       - name: Push Changes
         run: |
+          git checkout -b release/${{ inputs.app-name }}/${{ steps.bump-version.outputs.new_version_number }}
           git push origin release/${{ inputs.app-name }}/${{ steps.bump-version.outputs.new_version_number }} --no-verify
 
       - name: Create Pull Request
