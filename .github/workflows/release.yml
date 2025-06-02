@@ -83,6 +83,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install Specific Package for App
+        run: pnpm add conventional-changelog-eslint -w
+
       - name: Generate Changelog
         run: |
           APP_NAME=${{ inputs.app-name }}
