@@ -89,31 +89,6 @@ jobs:
           npm install conventional-changelog --no-save
           npm install conventional-changelog-angular --no-save
 
-      - name: Generate Changelog
-        run: |
-          APP_NAME=${{ inputs.app-name }}
-          CHANGELOG_PATH="apps/${APP_NAME}/CHANGELOG.md"
-          LAST_TAG=${{ needs.get_commits_by_app.outputs.last_tag }}
-
-          # Create the changelog file if it doesn't exist
-          if [ ! -f "$CHANGELOG_PATH" ]; then
-            echo "Creating CHANGELOG.md for $APP_NAME..."
-          fi
-
-          # Generate changelog using generate-changelog
-          npx conventional-changelog -p angular -i "$CHANGELOG_PATH" -s --commit-path "apps/${APP_NAME}" --from "$LAST_TAG"
-
-          # Format the changelog using Prettier
-          npx prettier --write "$CHANGELOG_PATH"
-
-          # Configure Git user identity
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Commit the updated changelog
-          git add "$CHANGELOG_PATH"
-          git commit -m "chore(${APP_NAME}): update changelog"
-
       - name: Bump the Version
         id: bump-version
         run: |
@@ -127,6 +102,38 @@ jobs:
           # Commit the version bump
           git add "apps/${{ inputs.app-name }}/package.json"
           git commit -m "chore(${APP_NAME}): bump version to ${new_version_number}"
+
+      - name: Generate Changelog
+        run: |
+          APP_NAME=${{ inputs.app-name }}
+          CHANGELOG_PATH="apps/${APP_NAME}/CHANGELOG.md"
+          LAST_TAG=${{ needs.get_commits_by_app.outputs.last_tag }}
+          NEW_VERSION=${{ steps.bump-version.outputs.new_version_number }}
+
+          # Create the changelog file if it doesn't exist
+          if [ ! -f "$CHANGELOG_PATH" ]; then
+            echo "Creating CHANGELOG.md for $APP_NAME..."
+          fi
+
+
+          # Prepend the new version to the changelog
+          echo "## ${NEW_VERSION}" | cat - "$CHANGELOG_PATH" > temp && mv temp "$CHANGELOG_PATH"
+
+          git log HEAD -- "apps/${APP_NAME}" --pretty=format:"%h %s"
+
+          # Generate changelog using generate-changelog
+          npx conventional-changelog -p angular -i "$CHANGELOG_PATH" -s --commit-path "apps/${APP_NAME}" --from "$LAST_TAG"
+
+          # Format the changelog using Prettier
+          # npx prettier --write "$CHANGELOG_PATH"
+
+          # Configure Git user identity
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Commit the updated changelog
+          git add "$CHANGELOG_PATH"
+          git commit -m "chore: update changelog"
 
       - name: Push Changes
         run: |
