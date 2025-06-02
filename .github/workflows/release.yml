@@ -82,6 +82,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      
+      - name: Create a new branch
+        run: git checkout -b test-release
+
       - name: Generate Changelog
         run: |
           APP_NAME=${{ inputs.app-name }}
@@ -110,9 +114,7 @@ jobs:
       - name: Bump the Version
         id: bump-version
         run: |
-          APP_NAME=${{ inputs.app-name }}
-          # Bump the version for the specific app-name workspace
-          new_version_number=$(npm version ${{ inputs.version }} -w $APP_NAME | grep -oP 'v\d+\.\d+\.\d+')
+          new_version_number=$(npm version ${{ inputs.version }} -w ${{ inputs.app-name }} | grep -oP 'v\d+\.\d+\.\d+')
           echo "new_version_number=${new_version_number}" >> $GITHUB_OUTPUT
 
       - name: Push Changes
