@@ -81,19 +81,29 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Generate Changelog
         run: |
           APP_NAME=${{ inputs.app-name }}
           CHANGELOG_PATH="${APP_NAME}/CHANGELOG.md"
 
+          # Ensure the app directory exists
+          mkdir -p "${APP_NAME}"
+
+          # Create the changelog file if it doesn't exist
+          if [ ! -f "$CHANGELOG_PATH" ]; then
+            echo "Creating CHANGELOG.md for $APP_NAME..."
+            echo "# Changelog for $APP_NAME" > "$CHANGELOG_PATH"
+          fi
+
           # Write filtered commits to the changelog file
-          echo "${{ needs.get_commits_by_app.outputs.filtered_commits }}" > $CHANGELOG_PATH
+          echo "${{ needs.get_commits_by_app.outputs.filtered_commits }}" >> "$CHANGELOG_PATH"
 
           # Format the changelog using Prettier
-          npx prettier --write $CHANGELOG_PATH
+          npx prettier --write "$CHANGELOG_PATH"
 
           # Commit the updated changelog
-          git add $CHANGELOG_PATH
+          git add "$CHANGELOG_PATH"
           git commit -m "chore(${APP_NAME}): update changelog"
 
       - name: Bump the Version
