@@ -23,11 +23,10 @@ on:
           - app-b
 
 jobs:
-  get_commits_by_app:
+  git_tag_by_app:
     runs-on: ubuntu-latest
     name: Get Commits by App
     outputs:
-      # filtered_commits: ${{ steps.filter-commits.outputs.filtered_commits }}
       last_tag: ${{ steps.extract-last-tag.outputs.last_tag }}
 
     steps:
@@ -55,34 +54,11 @@ jobs:
 
           echo "Last tag for $APP_NAME: $LAST_TAG"
           echo "last_tag=$LAST_TAG" >> $GITHUB_OUTPUT
-
-      # - name: Filter Commits by App
-      #   id: filter-commits
-      #   if: steps.extract-last-tag.outputs.last_tag != ''
-      #   run: |
-      #     LAST_TAG=${{ steps.extract-last-tag.outputs.last_tag }}
-      #     APP_NAME=${{ inputs.app-name }}
-
-      #     # Extract commits between the last tag and HEAD
-      #     COMMITS=$(git log $LAST_TAG..HEAD --pretty=format:"%s")
-      #     echo "Commits since last tag $LAST_TAG: $COMMITS"
-
-      #     # Filter commits where the scope matches the app name
-      #     FILTERED_COMMITS=$(echo "$COMMITS" | grep -E "^.+\\(${APP_NAME}\\):" || true)
-
-      #     # Output filtered commits
-      #     if [ -z "$FILTERED_COMMITS" ]; then
-      #       echo "No commits found for $APP_NAME since last tag."
-      #     else
-      #       echo "Filtered commits: $FILTERED_COMMITS"
-      #     fi
-      #     echo "filtered_commits=$FILTERED_COMMITS" >> $GITHUB_OUTPUT
-  
   create_release_pr:
     runs-on: ubuntu-latest
     name: Create Release PR
-    needs: get_commits_by_app
-    if: needs.get_commits_by_app.outputs.last_tag != ''
+    needs: git_tag_by_app
+    if: needs.git_tag_by_app.outputs.last_tag != ''
 
     steps:
       - uses: actions/checkout@v4
@@ -112,13 +88,8 @@ jobs:
         run: |
           APP_NAME=${{ inputs.app-name }}
           CHANGELOG_PATH="apps/${APP_NAME}/CHANGELOG.md"
-          LAST_TAG=${{ needs.get_commits_by_app.outputs.last_tag }}
+          LAST_TAG=${{ needs.git_tag_by_app.outputs.last_tag }}
           NEW_VERSION=${{ steps.bump-version.outputs.new_version_number }}
-
-          # Create the changelog file if it doesn't exist
-          if [ ! -f "$CHANGELOG_PATH" ]; then
-            echo "Creating CHANGELOG.md for $APP_NAME..."
-          fi
 
           echo "Last tag: $LAST_TAG"
 
