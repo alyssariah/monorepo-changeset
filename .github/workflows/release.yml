@@ -118,7 +118,7 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
           # Commit the version bump
-          git add "apps/${APP_NAME}/package.json"
+          git add "apps/${{ inputs.app-name }}/package.json"
           git commit -m "chore(${APP_NAME}): bump version to ${new_version_number}"
 
       - name: Push Changes
