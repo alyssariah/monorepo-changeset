@@ -96,7 +96,8 @@ jobs:
           fi
 
           # Generate changelog using generate-changelog
-          npx generate-changelog -t "$LAST_TAG" >> "$CHANGELOG_PATH"
+          # Filter commits by file path and generate changelog
+          git log "$LAST_TAG"..HEAD -- "apps/${APP_NAME}" --pretty=format:"%H" | xargs -I {} npx generate-changelog -c {} >> "$CHANGELOG_PATH"
 
           # Format the changelog using Prettier
           npx prettier --write "$CHANGELOG_PATH"
