@@ -94,7 +94,7 @@ jobs:
           fi
 
           # Write filtered commits to the changelog file
-          echo "${{ needs.get_commits_by_app.outputs.filtered_commits }}" >> "$CHANGELOG_PATH"
+          npx conventional-changelog -p angular -i "$CHANGELOG_PATH" -s --commit-path "apps/${APP_NAME}" --from "$LAST_TAG"
 
           # Format the changelog using Prettier
           npx prettier --write "$CHANGELOG_PATH"
