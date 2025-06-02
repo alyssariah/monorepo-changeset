@@ -116,6 +116,7 @@ jobs:
           fi
 
           git log HEAD -- "apps/${APP_NAME}" --pretty=format:"%h %s"
+          echo "Last tag: $LAST_TAG"
 
           # Generate changelog using generate-changelog
           npx conventional-changelog -p angular -i "$CHANGELOG_PATH" --from "$LAST_TAG"
