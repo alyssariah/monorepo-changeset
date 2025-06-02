@@ -97,7 +97,8 @@ jobs:
 
           # Generate changelog using generate-changelog
           # Filter commits by file path and generate changelog
-          git log "$LAST_TAG"..HEAD -- "apps/${APP_NAME}" --pretty=format:"%H" | xargs -I {} npx generate-changelog -c {} >> "$CHANGELOG_PATH"
+          npm install -D conventional-changelog-eslint
+          npx conventional-changelog -p eslint -i "$CHANGELOG_PATH" -s --commit-path "apps/${APP_NAME}" --from "$LAST_TAG"
 
           # Format the changelog using Prettier
           npx prettier --write "$CHANGELOG_PATH"
