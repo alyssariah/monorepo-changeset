@@ -44,7 +44,8 @@ jobs:
 
           # If no app-specific tag exists, fall back to the last tag in the repository
           if [ -z "$LAST_TAG" ]; then
-            LAST_TAG=$(git tag --list | sort -V | tail -n 1)
+            echo "No git tag was found for $APP_NAME."
+            exit 1
           fi
 
           echo "Last tag for $APP_NAME: $LAST_TAG"
