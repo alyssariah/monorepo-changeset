@@ -84,7 +84,9 @@ jobs:
           fetch-depth: 0
 
       - name: Install ESLint Preset
-        run: npm install conventional-changelog --no-save
+        run: |
+          npm install conventional-changelog --no-save
+          npm install conventional-changelog-angular --no-save
 
       - name: Generate Changelog
         run: |
