@@ -84,11 +84,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install ESLint Preset
-        run: |
-          npm install conventional-changelog --no-save
-          npm install conventional-changelog-angular --no-save
-
       - name: Bump the Version
         id: bump-version
         run: |
@@ -102,6 +97,11 @@ jobs:
           # Commit the version bump
           git add "apps/${{ inputs.app-name }}/package.json"
           git commit -m "chore(${APP_NAME}): bump version to ${new_version_number}"
+      
+      - name: Install ESLint Preset
+        run: |
+          npm install conventional-changelog --no-save
+          npm install conventional-changelog-angular --no-save
 
       - name: Generate Changelog
         run: |
