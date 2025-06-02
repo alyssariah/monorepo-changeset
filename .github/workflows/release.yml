@@ -49,7 +49,7 @@ jobs:
           echo "Last tag for $APP_NAME: $LAST_TAG"
           echo "last_tag=$LAST_TAG" >> $GITHUB_OUTPUT
 
-      - name: Filter Commits by Scope
+      - name: Filter Commits by App
         id: filter-commits
         if: steps.extract-last-tag.outputs.last_tag != ''
         run: |
@@ -101,6 +101,10 @@ jobs:
 
           # Format the changelog using Prettier
           npx prettier --write "$CHANGELOG_PATH"
+
+          # Configure Git user identity
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
           # Commit the updated changelog
           git add "$CHANGELOG_PATH"
