@@ -84,7 +84,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install ESLint Preset
-        run: npm install 
+        run: npm install conventional-changelog --no-save
 
       - name: Generate Changelog
         run: |
@@ -99,7 +99,7 @@ jobs:
           fi
 
           # Generate changelog using generate-changelog
-          npx conventional-changelog -p eslint -i "$CHANGELOG_PATH" -s --commit-path "apps/${APP_NAME}" --from "$LAST_TAG"
+          npx conventional-changelog -p angular -i "$CHANGELOG_PATH" -s --commit-path "apps/${APP_NAME}" --from "$LAST_TAG"
 
           # Format the changelog using Prettier
           npx prettier --write "$CHANGELOG_PATH"
