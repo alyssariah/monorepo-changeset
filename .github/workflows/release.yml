@@ -39,7 +39,7 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Extract Last Git Tag Prefixed with App Name
+      - name: Check if App has a Prefixed Git Tag
         id: extract-last-tag
         run: |
           APP_NAME=${{ inputs.app-name }}
