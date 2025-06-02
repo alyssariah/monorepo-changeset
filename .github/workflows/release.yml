@@ -64,7 +64,11 @@ jobs:
           FILTERED_COMMITS=$(echo "$COMMITS" | grep -E "^.+\\(${APP_NAME}\\):" || true)
 
           # Output filtered commits
-          echo "Filtered commits for $APP_NAME: $FILTERED_COMMITS"
+          if [ -z "$FILTERED_COMMITS" ]; then
+            echo "No commits found for $APP_NAME since last tag."
+          else
+            echo "Filtered commits: $FILTERED_COMMITS"
+          fi
           echo "filtered_commits=$FILTERED_COMMITS" >> $GITHUB_OUTPUT
   
   create_release_pr:
