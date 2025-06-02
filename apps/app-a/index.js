@@ -3,4 +3,5 @@ module.exports = () => {
     console.log("fix")
     console.log("build")
     console.log("chore 1")
+    console.log("chore 2")
 };
