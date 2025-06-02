@@ -38,6 +38,12 @@ jobs:
           APP_NAME=${{ inputs.app-name }}
           # Get the last tag prefixed with the app name
           LAST_TAG=$(git tag --list "${APP_NAME}*" | sort -V | tail -n 1)
+
+          # If no app-specific tag exists, fall back to the last tag in the repository
+          if [ -z "$LAST_TAG" ]; then
+            LAST_TAG=$(git tag --list | sort -V | tail -n 1)
+          fi
+
           echo "Last tag for $APP_NAME: $LAST_TAG"
           echo "last_tag=$LAST_TAG" >> $GITHUB_OUTPUT
 
@@ -46,9 +52,11 @@ jobs:
         run: |
           LAST_TAG=${{ steps.extract-last-tag.outputs.last_tag }}
           APP_NAME=${{ inputs.app-name }}
+          
 
           # Extract commits between the last tag and HEAD
           COMMITS=$(git log $LAST_TAG..HEAD --pretty=format:"%s")
+          echo "Commits since last tag $LAST_TAG: $COMMITS"
 
           # Filter commits where the scope matches the app name
           FILTERED_COMMITS=$(echo "$COMMITS" | grep -E "^.+\\(${APP_NAME}\\):")
