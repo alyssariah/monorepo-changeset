@@ -98,7 +98,6 @@ jobs:
           # Create the changelog file if it doesn't exist
           if [ ! -f "$CHANGELOG_PATH" ]; then
             echo "Creating CHANGELOG.md for $APP_NAME..."
-            echo "# Changelog for $APP_NAME" > "$CHANGELOG_PATH"
           fi
 
           # Generate changelog using generate-changelog
