@@ -1,4 +1,4 @@
-# package-a
+# app-a
 
 ## 1.1.0
 

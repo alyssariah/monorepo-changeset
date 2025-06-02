@@ -1,33 +1,84 @@
-name: Release
+name: Create Release PR
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to bump the release by.
+        required: true
+        default: minor
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+
+      app-name:
+        description: The name of the app in the monorepo to create a release PR for
+        required: true
+        default: ojl-tracker
+        type: choice
+        options:
+          - app-a
+          - app-b
 
 jobs:
-  release:
+  create_release_pr:
     runs-on: ubuntu-latest
+    name: Create Release PR
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
+      - uses: actions/checkout@v4
         with:
-          version: 10
-          run_install: false
+          fetch-depth: 0
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
+      - name: Extract Last Git Tag
+        id: extract-last-tag
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0)
+          echo "last_tag=$LAST_TAG" >> $GITHUB_OUTPUT
 
-      - name: Install Dependencies
-        run: pnpm install
+      - name: Filter Commits by Scope
+        id: filter-commits
+        run: |
+          LAST_TAG=${{ steps.extract-last-tag.outputs.last_tag }}
+          APP_NAME=${{ inputs.app-name }}
 
-      - name: Create Release Pull Request  
-        uses: changesets/action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+          # Extract commits between the last tag and HEAD
+          COMMITS=$(git log $LAST_TAG..HEAD --pretty=format:"%s")
+
+          # Filter commits where the scope matches the app name
+          FILTERED_COMMITS=$(echo "$COMMITS" | grep -E "^.+\\(${APP_NAME}\\):")
+
+          # Output filtered commits
+          echo "filtered_commits=$FILTERED_COMMITS" >> $GITHUB_OUTPUT
+
+      - name: Generate Changelog
+        run: |
+          echo "${{ steps.filter-commits.outputs.filtered_commits }}" > application/CHANGELOG.md
+          npx prettier --write application/CHANGELOG.md
+          git add application/CHANGELOG.md
+          git commit -m 'chore: update changelog'
+
+      - name: Bump the Version
+        id: bump-version
+        run: |
+          new_version_number=$(npm version ${{ inputs.version }} -w application | grep -oP 'v\d+\.\d+\.\d+')
+          echo "new_version_number=${new_version_number}" >> $GITHUB_OUTPUT
+
+      - name: Push Changes
+        run: |
+          git push origin release/${{ steps.bump-version.outputs.new_version_number }} --no-verify
+
+      - name: Create Pull Request
+        run: |
+          PR_DATA=$(jq -n \
+            --arg title "chore: ${{ steps.bump-version.outputs.new_version_number }} release" \
+            --arg head "release/${{ steps.bump-version.outputs.new_version_number }}" \
+            --arg base "main" \
+            --arg body "Automated changes by a GitHub Action" \
+            '{title: $title, head: $head, base: $base, body: $body}')
+          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/pulls \
+            -d "$PR_DATA"
