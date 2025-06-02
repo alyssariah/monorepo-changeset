@@ -95,7 +95,7 @@ jobs:
 
           # Generate changelog using generate-changelog
           cd apps/${APP_NAME}
-          npx conventional-changelog -p eslint -i "CHANGELOG.md" -s --commit-path "." --tag-prefix="${{ inputs.app-name }}@"
+          npx conventional-changelog -p eslint -i "CHANGELOG.md" -s --commit-path "." --tag-prefix="${{ inputs.app-name }}@" --from "$LAST_TAG"
 
           # Format the changelog using Prettier
           npx prettier --write "CHANGELOG.md"
