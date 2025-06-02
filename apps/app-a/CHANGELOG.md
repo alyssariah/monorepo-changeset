@@ -1,3 +1,5 @@
+# [1.2.0](https://github.com/alyssariah/monorepo-changeset/compare/app-a@v1.1.0...app-a@1.2.0) (2025-06-02)
+
 # [1.1.0](https://github.com/alyssariah/monorepo-changeset/compare/app-a@1.0.0...app-a@1.1.0) (2025-06-02)
 
 ### chore
