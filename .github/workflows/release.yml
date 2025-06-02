@@ -84,9 +84,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install Specific Package for App
-        run: |
-          npm i conventional-changelog-eslint
-          npm i --no-save conventional-changelog-cli
+        run: npm install --no-save conventional-changelog-cli conventional-changelog-eslint
 
       - name: Generate Changelog
         run: |
