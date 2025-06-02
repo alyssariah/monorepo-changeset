@@ -85,7 +85,7 @@ jobs:
       - name: Generate Changelog
         run: |
           APP_NAME=${{ inputs.app-name }}
-          CHANGELOG_PATH="/apps/${APP_NAME}/CHANGELOG.md"
+          CHANGELOG_PATH="apps/${APP_NAME}/CHANGELOG.md"
 
           # Create the changelog file if it doesn't exist
           if [ ! -f "$CHANGELOG_PATH" ]; then
