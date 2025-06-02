@@ -115,14 +115,10 @@ jobs:
             echo "Creating CHANGELOG.md for $APP_NAME..."
           fi
 
-
-          # Prepend the new version to the changelog
-          echo "## ${NEW_VERSION}" | cat - "$CHANGELOG_PATH" > temp && mv temp "$CHANGELOG_PATH"
-
           git log HEAD -- "apps/${APP_NAME}" --pretty=format:"%h %s"
 
           # Generate changelog using generate-changelog
-          npx conventional-changelog -p angular -i "$CHANGELOG_PATH" -s --from "$LAST_TAG"
+          npx conventional-changelog -p angular -i "$CHANGELOG_PATH" --from "$LAST_TAG"
 
           # Format the changelog using Prettier
           # npx prettier --write "$CHANGELOG_PATH"
