@@ -120,7 +120,6 @@ jobs:
             echo "Creating CHANGELOG.md for $APP_NAME..."
           fi
 
-          git log HEAD -- "apps/${APP_NAME}" --pretty=format:"%h %s"
           echo "Last tag: $LAST_TAG"
 
           # Generate changelog using generate-changelog
@@ -128,14 +127,14 @@ jobs:
           npx conventional-changelog -p eslint -i "CHANGELOG.md" -s --commit-path "." --from "$LAST_TAG"
 
           # Format the changelog using Prettier
-          npx prettier --write "$CHANGELOG_PATH"
+          npx prettier --write "CHANGELOG.md"
 
           # Configure Git user identity
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
           # Commit the updated changelog
-          git add "$CHANGELOG_PATH"
+          git add "CHANGELOG.md"
           git commit -m "chore: update changelog"
 
       - name: Push Changes
