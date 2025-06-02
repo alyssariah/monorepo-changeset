@@ -113,6 +113,14 @@ jobs:
           new_version_number=$(npm version ${{ inputs.version }} -w ${{ inputs.app-name }} | grep -oP 'v\d+\.\d+\.\d+')
           echo "new_version_number=${new_version_number}" >> $GITHUB_OUTPUT
 
+          # Configure Git user identity
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Commit the version bump
+          git add "apps/${APP_NAME}/package.json"
+          git commit -m "chore(${APP_NAME}): bump version to ${new_version_number}"
+
       - name: Push Changes
         run: |
           git checkout -b release/${{ inputs.app-name }}/${{ steps.bump-version.outputs.new_version_number }}
