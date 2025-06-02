@@ -35,6 +35,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Extract Last Git Tag Prefixed with App Name
         id: extract-last-tag
         run: |
@@ -101,7 +106,7 @@ jobs:
       - name: Install ESLint Preset
         run: |
           npm install conventional-changelog --no-save
-          npm install conventional-changelog-angular --no-save
+          npm install conventional-changelog-eslint --no-save
 
       - name: Generate Changelog
         run: |
@@ -119,7 +124,8 @@ jobs:
           echo "Last tag: $LAST_TAG"
 
           # Generate changelog using generate-changelog
-          npx conventional-changelog -p angular -i "$CHANGELOG_PATH" --commit-path "apps/${APP_NAME}"
+          cd apps/${APP_NAME}
+          npx conventional-changelog -p eslint -i "CHANGELOG.md" -s --commit-path "." --from "$LAST_TAG"
 
           # Format the changelog using Prettier
           npx prettier --write "$CHANGELOG_PATH"

@@ -16,6 +16,7 @@
     "conventional-changelog-eslint": "^6.0.0"
   },
   "dependencies": {
-    "conventional-changelog": "^7.0.2"
+    "conventional-changelog": "^7.0.2",
+    "conventional-changelog-angular": "^8.0.0"
   }
 }
