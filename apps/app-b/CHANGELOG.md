@@ -1,3 +1,13 @@
+# [1.2.0](https://github.com/alyssariah/monorepo-changeset/compare/app-b@v1.1.0...app-b@1.2.0) (2025-06-03)
+
+### chore
+
+- change app A and app B ([5d1f693](https://github.com/alyssariah/monorepo-changeset/commit/5d1f693935199bd2a904e6912ef435ad2f7ae36c))
+
+### feat
+
+- clean app B ([ed7da62](https://github.com/alyssariah/monorepo-changeset/commit/ed7da62589939d57feafd0ccad411ac4fe0bbcc4))
+
 # [1.1.0](https://github.com/alyssariah/monorepo-changeset/compare/app-b@v1.0.0...app-b@1.1.0) (2025-06-02)
 
 ### docs
